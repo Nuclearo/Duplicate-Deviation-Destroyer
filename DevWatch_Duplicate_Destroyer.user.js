@@ -4,7 +4,7 @@
 // @namespace   NuclearGenom
 // @description Removes duplicates from your dA inbox
 // @include     http://www.deviantart.com/messages/*
-// @version     0.9
+// @version     0.91
 // @lisence		GPL v2
 // @grant		none
 // ==/UserScript==
@@ -18,9 +18,11 @@ var deviations = {};
 var boxNumber;
 var waitIntervalID;
 var originURL;
+var buttonClass = "f1";
 
 function cleanInbox(button) {
 	deviations = {};
+	buttonClass = "f1 active";
 	originURL = document.URL;
 	cleanPage();
 }
@@ -46,8 +48,10 @@ function cleanPage () {
 				boxNumber = 0;
 				waitIntervalID = setInterval(cleanPage,500);
 			}
-			else
+			else{
 				location.assign(originURL);
+				buttonClass = "f1";
+			}
 		}
 	}catch(error){
 		console.log("Type error caught, aborting.");
@@ -68,7 +72,7 @@ function placeButton (){
 			if(mczone.length===1){
 				var button = document.createElement("div");	//the delete button
 				button.id = "DuplicateDeleterButton";
-				button.setAttribute("class","f1");
+				button.setAttribute("class",buttonClass);
 				button.textContent = "Delete Duplicate Deviations";            
 				button.onclick = cleanInbox;
 				var spot = mczone[0].getElementsByTagName("tr")[0];
