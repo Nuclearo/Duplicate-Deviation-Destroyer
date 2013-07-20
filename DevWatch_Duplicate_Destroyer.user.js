@@ -1,22 +1,27 @@
 // ==UserScript==
 // @name        deviantArt - DevWatch Duplicate Destroyer
-// @namespace   nucleargenom.com
+// @author		Nuclearo
+// @namespace   NuclearGenom
 // @description Removes duplicates from your dA inbox
-// @include     http://www.deviantart.com/messages/#view=deviations*
-// @include     http://www.deviantart.com/messages/#view=deviations%*
-// @version     1
+// @include     http://www.deviantart.com/messages/*
+// @version     0.9
+// @lisence		GPL v2
 // @grant		none
 // ==/UserScript==
+
+/****
+Uses code from Timid Script - http://userscripts.org/users/TimidScript
+****/
 
 var gmi = document.getElementById("gmi-ResourceStream");
 var deviations = {};
 var boxNumber;
 var waitIntervalID;
-var origin;
+var originURL;
 
-function cleanInbox() {
+function cleanInbox(button) {
 	deviations = {};
-	origin = document.URL;
+	originURL = document.URL;
 	cleanPage();
 }
 
@@ -42,7 +47,7 @@ function cleanPage () {
 				waitIntervalID = setInterval(cleanPage,500);
 			}
 			else
-				location.assign(origin);
+				location.assign(originURL);
 		}
 	}catch(error){
 		console.log("Type error caught, aborting.");
@@ -57,21 +62,33 @@ function getMessagePage (pageNum){
 }
 
 function placeButton (){
-	if(document.URL.indexOf("http://www.deviantart.com/messages/#view=deviations")===0)
-	{
-		if (!document.getElementById("DuplicateDeleterButton"))
-		{
-			button = document.createElement("button");
-			button.id = "DuplicateDeleterButton"
-			button.setAttribute("style", "width: 100%; height: 25px;");
-			button.textContent = "Delete Duplicate Deviations";            
-			button.onclick = cleanInbox;
+	if(document.URL.indexOf("www.deviantart.com/messages/#view=deviations")!==-1){
+		if (!document.getElementById("DuplicateDeleterButton")){
+			var mczone = document.getElementsByClassName("mczone-filter");
+			if(mczone.length===1){
+				var button = document.createElement("div");	//the delete button
+				button.id = "DuplicateDeleterButton";
+				button.setAttribute("class","f1");
+				button.textContent = "Delete Duplicate Deviations";            
+				button.onclick = cleanInbox;
+				var spot = mczone[0].getElementsByTagName("tr")[0];
+				var parenTD = document.createElement("td"); //enclosing td for the button
+				parenTD.setAttribute("class","f");
+				parenTD.appendChild(button);
+				spot.insertBefore(parenTD, spot.lastChild.nextSibling);
+				//create a separator
+				// var divl = document.createElement("div");
+				// divl.setAttribute("class","dvl");
+				// spot.insertBefore(divl,parenTD);
+			}
 			gmi = document.getElementById("gmi-ResourceStream");
-			gmi.parentNode.insertBefore(button, gmi);
 		}
 	}
-	else if (document.getElementById("DuplicateDeleterButton"))
-		document.getElementById("DuplicateDeleterButton").parentElement.removeChild(document.getElementById("DuplicateDeleterButton"));
+	else if (document.getElementById("DuplicateDeleterButton")){
+		var parenTD=document.getElementById("DuplicateDeleterButton").parentElement;
+		parenTD.removeChild(document.getElementById("DuplicateDeleterButton"));
+		parenTD.parentElement.removeChild(parenTD);
+	}
 
 }
 
@@ -95,5 +112,5 @@ function clickOn (element){
 	element.dispatchEvent(evt);
 }
 
-placeButton();
+window.onload = placeButton();
 document.addEventListener("DOMSubtreeModified", placeButton, true);
