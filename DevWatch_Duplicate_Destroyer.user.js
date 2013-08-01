@@ -13,7 +13,6 @@
 Uses code from Timid Script - http://userscripts.org/users/TimidScript
 ****/
 
-var gmi = $("#gmi-ResourceStream");
 var deviations = {};
 var deteled;
 var originURL;
@@ -31,7 +30,7 @@ function cleanInbox() {
 
 function cleanPage () {
 	try{
-		var boxes = gmi.find(".mcbox");	//get all the message boxes
+		var boxes = $(".mcbox");	//get all the message boxes
 		deteled = false;
 		//the boxes will always be there, their content might be late, so we check first.
 		if (boxes.last().find(".mcb-title a").attr("href")){
@@ -48,6 +47,7 @@ function cleanPage () {
 					deviations.length++;
 				}
 			});
+
 			if (deteled){ //If you deleted anything, continue on this page.
 				setTimeout(cleanPage,timeoutLength);
 				console.log("deleted something, reprocessing page from there. Unique devs:"+deviations.length)
@@ -74,7 +74,7 @@ function cleanPage () {
 
 function placeButton (){
 	if(document.URL.indexOf("www.deviantart.com/messages/#view=deviations")!==-1){
-		if (!document.getElementById("DuplicateDeleterButton")){
+		if (!$("#DuplicateDeleterButton").length){
 			var mczone = $(".mczone-filter");
 			if(mczone.length===1){
 				var button = $(document.createElement("div"));	//the delete button
@@ -92,7 +92,6 @@ function placeButton (){
 				// divl.setAttribute("class","dvl");
 				// spot.insertBefore(divl,parenTD);
 			}
-			gmi = $("#gmi-ResourceStream");
 		}
 	}
 	else if (document.getElementById("DuplicateDeleterButton")){
