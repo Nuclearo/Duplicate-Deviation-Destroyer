@@ -16,7 +16,7 @@ Uses code from Timid Script - http://userscripts.org/users/TimidScript
 var deviations = {};
 var deteled;
 var originURL;
-var timeoutLength = 4000;
+var timeoutLength = 400;
 
 function cleanInbox() {
 	deviations = {};
@@ -48,25 +48,17 @@ function cleanPage () {
 				}
 			});
 
-			if (deteled){ //If you deleted anything, continue on this page.
+			if (deteled) //If you deleted anything, continue on this page.
 				setTimeout(cleanPage,timeoutLength);
-				console.log("deleted something, reprocessing page from there. Unique devs:"+deviations.length)
-			}
 			else if(getNextPage()){ //If this page is done, get the nest page.
 				deteled=false;
 				setTimeout(cleanPage,timeoutLength);
-				console.log("got next page, continuing. Unique devs:"+deviations.length)
 			}
-			else{ //If there is no next pageour work here is done.
-				console.log("done. Unique devs:"+deviations.length);
+			else { //If there is no next page our work here is done.
 				location.assign(originURL);
 				$("#DuplicateDeleterButton").removeClass("active").on("click",cleanInbox);
 			}
-		}
-		else { //if the content wasn't loaded yet, wait a bit more.
-			setTimeout(cleanPage,timeoutLength);
-			console.log("Page not loaded yet. Unique devs:"+deviations.length);
-		}
+		} else	setTimeout(cleanPage,timeoutLength); //If the content wasn't loaded yet, wait a bit more.
 	}catch(error){
 		console.log(error);
 	}
