@@ -14,14 +14,14 @@ Uses code from Timid Script - http://userscripts.org/users/TimidScript
 ****/
 
 var deviations = {};
-var deteled;
+var deleted;
 var originURL;
-var timeoutLength = 400;
+var timeoutLength = 4000;
 
 function cleanInbox() {
 	deviations = {};
 	deviations.length = 0;
-	deteled=false;
+	deleted=false;
 	$("#DuplicateDeleterButton").addClass("active").off("click");
 	originURL = document.URL;
 	cleanPage();
@@ -31,15 +31,17 @@ function cleanInbox() {
 function cleanPage () {
 	try{
 		var boxes = $(".mcbox");	//get all the message boxes
-		deteled = false;
+		deleted = false;
 		//the boxes will always be there, their content might be late, so we check first.
 		if (boxes.last().find(".mcb-title a").attr("href")){
+			console.log(boxes.find(".mcb-title a:not(.seen)").length);
 			boxes.find(".mcb-title a:not(.seen)").each(function(){
 				var id = $(this).attr("href").match(/\d+$/);
 				if (id in deviations){
 					console.log("duplicate: "+id);
 					$(this).offsetParent().find(".mcx").click();
-					deteled=true;
+					deleted=true;
+					// return false;
 				}
 				else{
 					$(this).addClass("seen");
@@ -48,13 +50,21 @@ function cleanPage () {
 				}
 			});
 
-			if (deteled) //If you deleted anything, continue on this page.
-				setTimeout(cleanPage,timeoutLength);
-			else if(getNextPage()){ //If this page is done, get the nest page.
-				deteled=false;
-				setTimeout(cleanPage,timeoutLength);
+			var next = $(".r.page"); //check for extra pages
+			if(next.length==1){
+				if (deleted){ //If you deleted anything, continue on this page.
+					console.log("Deleted, redoing page");
+					setTimeout(cleanPage,timeoutLength);
+				}
+				else { //If this page is done, get the nest page.
+					deleted=false;
+					console.log("next page");
+					next.click();
+					setTimeout(cleanPage,timeoutLength);
+				}
 			}
 			else { //If there is no next page our work here is done.
+				console.log("found "+deviations.length+" different deviations");
 				location.assign(originURL);
 				$("#DuplicateDeleterButton").removeClass("active").on("click",cleanInbox);
 			}
