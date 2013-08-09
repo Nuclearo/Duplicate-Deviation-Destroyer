@@ -4,7 +4,7 @@
 // @namespace   NuclearGenom
 // @description Removes duplicates from your dA inbox
 // @include     http://www.deviantart.com/messages/*
-// @version     0.94
+// @version     0.98
 // @lisence		GPL v2
 // @grant		none
 // ==/UserScript==
@@ -16,7 +16,7 @@ Uses code from Timid Script - http://userscripts.org/users/TimidScript
 var deviations = {};
 var deleted;
 var originURL;
-var timeoutLength = 4000;
+var timeoutLength = 400;
 
 function cleanInbox() {
 	deviations = {};
@@ -33,42 +33,40 @@ function cleanPage () {
 		var boxes = $(".mcbox");	//get all the message boxes
 		deleted = false;
 		//the boxes will always be there, their content might be late, so we check first.
-		if (boxes.last().find(".mcb-title a").attr("href")){
-			console.log(boxes.find(".mcb-title a:not(.seen)").length);
-			boxes.find(".mcb-title a:not(.seen)").each(function(){
-				var id = $(this).attr("href").match(/\d+$/);
-				if (id in deviations){
-					console.log("duplicate: "+id);
-					$(this).offsetParent().find(".mcx").click();
-					deleted=true;
-					// return false;
-				}
-				else{
-					$(this).addClass("seen");
-					deviations[id]=true;
+		if (boxes.find(":contains('Loading Message...')").length>0)
+			setTimeout(cleanPage,timeoutLength); //If the content wasn't loaded yet, wait a bit more.
+		else {
+			boxes.filter(":has(.mcb-line)").each(function(){	//sometimes "This deviation is no longer available". V1.0 will delete those too.
+				var id = $(this).find(".mcb-title a").attr("href").match(/\d+$/);
+				if (!(id in deviations)){
+					deviations[id]=$(this).find(".mcb-who a").text();
 					deviations.length++;
+				}
+				else if(deviations[id]==$(this).find(".mcb-who a").text()){
+					$(this).find(".mcx").click();
+					deleted=true;
 				}
 			});
 
 			var next = $(".r.page"); //check for extra pages
 			if(next.length==1){
 				if (deleted){ //If you deleted anything, continue on this page.
-					console.log("Deleted, redoing page");
+					// console.log("Deleted, redoing page");
 					setTimeout(cleanPage,timeoutLength);
 				}
 				else { //If this page is done, get the nest page.
 					deleted=false;
-					console.log("next page");
+					// console.log("next page");
 					next.click();
 					setTimeout(cleanPage,timeoutLength);
 				}
 			}
 			else { //If there is no next page our work here is done.
-				console.log("found "+deviations.length+" different deviations");
+				// console.log("found "+deviations.length+" different deviations");
 				location.assign(originURL);
 				$("#DuplicateDeleterButton").removeClass("active").on("click",cleanInbox);
 			}
-		} else	setTimeout(cleanPage,timeoutLength); //If the content wasn't loaded yet, wait a bit more.
+		} 
 	}catch(error){
 		console.log(error);
 	}
@@ -107,7 +105,7 @@ function placeButton (){
 function getNextPage()
 {
 	var next = $(".r.page");
-	//console.log(next);
+	//GM_log(next);
 	if (next.length > 0)
 	{
 		next.click();
