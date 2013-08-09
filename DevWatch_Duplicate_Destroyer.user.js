@@ -51,18 +51,15 @@ function cleanPage () {
 			var next = $(".r.page"); //check for extra pages
 			if(next.length==1){
 				if (deleted){ //If you deleted anything, continue on this page.
-					// console.log("Deleted, redoing page");
 					setTimeout(cleanPage,timeoutLength);
 				}
 				else { //If this page is done, get the nest page.
 					deleted=false;
-					// console.log("next page");
 					next.click();
 					setTimeout(cleanPage,timeoutLength);
 				}
 			}
 			else { //If there is no next page our work here is done.
-				// console.log("found "+deviations.length+" different deviations");
 				location.assign(originURL);
 				$("#DuplicateDeleterButton").removeClass("active").on("click",cleanInbox);
 			}
