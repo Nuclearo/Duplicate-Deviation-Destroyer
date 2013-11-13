@@ -4,7 +4,7 @@
 // @namespace   NuclearGenom
 // @description Removes duplicates from your dA inbox
 // @include     http://www.deviantart.com/messages/*
-// @version     0.98
+// @version     0.99
 // @lisence		GPL v2
 // @grant		none
 // ==/UserScript==
@@ -42,7 +42,7 @@ function cleanPage () {
 					deviations[id]=$(this).find(".mcb-who a").text();
 					deviations.length++;
 				}
-				else if(deviations[id]==$(this).find(".mcb-who a").text()){
+				else if(deviations[id]!==$(this).find(".mcb-who a").text()){
 					$(this).find(".mcx").click();
 					deleted=true;
 				}
